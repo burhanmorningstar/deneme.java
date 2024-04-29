@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="8dp"
+    app:cardCornerRadius="16dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="220dp"
+        android:orientation="horizontal"
+        android:padding="16dp">
+
+        <ImageView
+            android:id="@+id/iv_redbull_resmi"
+            android:layout_width="100dp"
+            android:layout_height="150dp"
+            android:layout_marginTop="15dp"
+            android:scaleType="fitCenter" />
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="180dp"
+            android:layout_marginTop="5dp"
+            android:layout_marginBottom="5dp"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/tv_redbull_ismi"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textSize="18sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/tv_redbull_aciklama"
+                android:layout_width="match_parent"
+                android:layout_height="83dp"
+                android:ellipsize="end"
+                android:maxLines="5"
+                android:textSize="12sp" />
+
+            <LinearLayout
+                android:layout_width="95dp"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/tv_redbull_hacmi"
+                    android:layout_width="29dp"
+                    android:layout_height="22dp"
+                    android:textSize="14dp" />
+
+                <TextView
+                    android:id="@+id/mlTextView"
+                    android:layout_width="29dp"
+                    android:layout_height="22dp"
+                    android:layout_weight="1"
+                    android:text="ML" />
+
+            </LinearLayout>
+
+            <Button
+                android:id="@+id/btnSepeteEkle"
+                android:layout_width="188dp"
+                android:layout_height="50dp"
+                android:text="Sepete Ekle" />
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+</androidx.cardview.widget.CardView>

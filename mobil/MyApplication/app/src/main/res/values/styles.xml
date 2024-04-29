@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <style name="custom_card_view_signup" parent="" >
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSizeTopRight">0dp</item>
+        <item name="cornerSizeTopLeft">85dp</item>
+        <item name="cornerSizeBottomLeft">0dp</item>
+        <item name="cornerSizeBottomRight">0dp</item>
+    </style>
+
+    <style name="custom_card_view_signup_style">
+        <item name="shapeAppearanceOverlay">@style/custom_card_view_signup</item>
+    </style>
+
+    <style name="card_circle_view" parent="">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">16dp</item>
+    </style>
+
+    <style name="button_costum_style" >
+        <item name="android:textColor">#FFFFFF</item>
+        <item name="android:backgroundTint">@color/edit_text_background</item>
+        <item name="android:textColorLink">#FFFFFF</item>
+        <!-- Arka plan rengi için kendi isteğinize göre renk kodunu buraya ekleyin -->
+        <!-- Diğer özel stillendirme özelliklerini buraya ekleyebilirsiniz -->
+    </style>
+
+    <style name="button_costum_style2" >
+        <item name="android:textColor">#FFFFFF</item>
+        <item name="android:backgroundTint">#fffef7ff</item>
+        <item name="android:textColorLink">#fffef7ff</item>
+        <!-- Arka plan rengi için kendi isteğinize göre renk kodunu buraya ekleyin -->
+        <!-- Diğer özel stillendirme özelliklerini buraya ekleyebilirsiniz -->
+    </style>
+
+    <style name="card_circle_view_style">
+        <item name="shapeAppearanceOverlay">@style/card_circle_view</item>
+    </style>
+</resources>
