@@ -6,18 +6,20 @@ const multer = require('multer');
 const path = require('path');
 
 const app = express();
-const port = process.env.PORT || 3000;
+const port = process.env.PORT || 8080;
 
-// MySQL bağlantı bilgileri
+
+
+// MySQL ba lant  bilgileri
 const db = mysql.createConnection({
     host: "127.0.0.1",
     user: "root",
-    password: "password",
-    database: "deneme",
+    password: "yeni_parola",
+    database: "www_mobil_data",
     port: "3306"
 });
 
-// MySQL bağlantısını başlatma
+// MySQL ba lant s n  ba latma
 db.connect((err) => {
     if (err) {
         throw err;
@@ -29,15 +31,19 @@ db.connect((err) => {
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+app.get('/isApiWorking', (req, res) => {
+    res.status(200).send('API çalışıyor!');
+  });
+
 // Register endpoint'i
 app.post('/register', async (req, res) => {
     try {
         const { user_email_address, user_password, user_name } = req.body;
 
-        // Şifreyi bcrypt ile şifreleme
+        //  ifreyi bcrypt ile  ifreleme
         const hashedPassword = await bcrypt.hash(user_password, 10);
 
-        // Kullanıcıyı veritabanına ekleme
+        // Kullan c y  veritaban na ekleme
         db.query('INSERT INTO users (user_email_address, user_password, user_name) VALUES (?, ?, ?)', 
             [user_email_address, hashedPassword, user_name], 
             (err, result) => {
@@ -65,21 +71,20 @@ app.post('/login', async (req, res) => {
             if (err) {
                 console.error(err);
                 res.status(500).send("Giriş yapılırken bir hata oluştu.");
-            } else {
-                if (result.length > 0) {
-                    const user = result[0];
-                    // Şifreyi karşılaştırma
-                    const passwordMatch = await bcrypt.compare(user_password, user.user_password);
-                    if (passwordMatch) {
-                        // JWT token oluşturma
-                        const token = jwt.sign({ user_id: user.user_id }, 'secretkey');
-                        res.status(200).json({ token });
-                    } else {
-                        res.status(401).send("Hatalı e-posta veya şifre.");
-                    }
+                return;
+            }
+
+            if (result.length > 0) {
+                const user = result[0];
+                // Şifreyi karşılaştırma
+                const passwordMatch = await bcrypt.compare(user_password, user.user_password);
+                if (passwordMatch) {
+                    res.status(200).json({ userId: user.user_id });
                 } else {
-                    res.status(404).send("Hatalı e-posta veya şifre.");
+                    res.status(401).send("Hatalı e-posta veya şifre.");
                 }
+            } else {
+                res.status(404).send("Hatalı e-posta veya şifre.");
             }
         });
     } catch (error) {
@@ -88,46 +93,47 @@ app.post('/login', async (req, res) => {
     }
 });
 
-// Tüm içecekleri getiren endpoint
+
+// T m i ecekleri getiren endpoint
 app.get('/drinks', (req, res) => {
-    const query = 'SELECT * FROM deneme.drinks';
+    const query = 'SELECT * FROM drinks';
     db.query(query, (err, results) => {
         if (err) {
-            res.status(500).json({ message: 'İçecekler alınamadı' });
+            res.status(500).json({ message: ' içecekler alınamadı' });
             throw err;
         }
         res.json(results);
     });
 });
 
-// İçecek detaylarını getiren endpoint
+//   ecek detaylar n  getiren endpoint
 app.get('/drinks/:id', (req, res) => {
     const id = req.params.id;
-    const query = 'SELECT * FROM deneme.drinks WHERE id = ?';
+    const query = 'SELECT * FROM drinks WHERE id = ?';
     db.query(query, [id], (err, results) => {
         if (err) {
-            res.status(500).json({ message: 'İçecek detayları alınamadı' });
+            res.status(500).json({ message: 'içecek detayları alınamadı' });
             throw err;
         }
         if (results.length === 0) {
-            res.status(404).json({ message: 'İçecek bulunamadı' });
+            res.status(404).json({ message: 'içecek bulunamadı' });
             return;
         }
         res.json(results[0]);
     });
 });
 
-// İçecek resmini getiren endpoint
+//   ecek resmini getiren endpoint
 app.get('/drinks/:id/image', (req, res) => {
     const id = req.params.id;
-    const query = 'SELECT image_url FROM deneme.drinks WHERE id = ?';
+    const query = 'SELECT image_url FROM drinks WHERE id = ?';
     db.query(query, [id], (err, results) => {
         if (err) {
-            res.status(500).json({ message: 'İçecek resmi alınamadı' });
+            res.status(500).json({ message: 'içecek resmi alınamadı' });
             throw err;
         }
         if (results.length === 0 || !results[0].image_url) {
-            res.status(404).json({ message: 'İçecek resmi bulunamadı' });
+            res.status(404).json({ message: 'içecek resmi bulunamadı' });
             return;
         }
         const imagePath = path.join(__dirname, results[0].image_url);
@@ -135,7 +141,7 @@ app.get('/drinks/:id/image', (req, res) => {
     });
 });
 
-// Tüm sporcuları getiren endpoint
+// T m sporcular  getiren endpoint
 app.get('/athletes', (req, res) => {
     const query = 'SELECT * FROM athletes';
     db.query(query, (err, results) => {
@@ -147,26 +153,52 @@ app.get('/athletes', (req, res) => {
     });
 });
 
-// Sepete ürün ekleme endpoint'i
+// Sepete  r n ekleme endpoint'i
 app.post('/basket/add', (req, res) => {
-    const { user_id, drink_id, adet ,is_emty} = req.body;
-    const query = 'INSERT INTO deneme.basket (user_id, drink_id, adet,is_emty) VALUES (?, ?, ?,?)';
-    db.query(query, [user_id, drink_id, adet,1], (err, result) => {
+    const { user_id, drink_id } = req.body;
+    const querySelect = 'SELECT quantity FROM basket WHERE user_id = ? AND drink_id = ?';
+    const queryInsert = 'INSERT INTO basket (user_id, drink_id, quantity, is_empty) VALUES (?, ?, ?, ?)';
+    const queryUpdate = 'UPDATE basket SET quantity = ? WHERE user_id = ? AND drink_id = ?';
+
+    // Önce belirli bir kullanıcının belirli bir içeceği sepetine eklenip eklenmediğini kontrol ediyoruz
+    db.query(querySelect, [user_id, drink_id], (err, rows) => {
         if (err) {
-            res.status(500).json({ message: 'Sepete ürün eklenirken bir hata oluştu' });
+            res.status(500).json({ message: 'Sepet kontrol edilirken bir hata oluştu' });
             throw err;
         }
-        res.json({ message: 'Ürün başarıyla sepete eklendi' });
+
+        // Eğer belirli bir içecek daha önce eklenmemişse, yeni bir giriş oluşturun
+        if (rows.length === 0) {
+            db.query(queryInsert, [user_id, drink_id, 1, 1], (err, result) => {
+                if (err) {
+                    res.status(500).json({ message: 'Sepete ürün eklenirken bir hata oluştu' });
+                    throw err;
+                }
+                res.json({ message: 'Ürün başarıyla sepete eklendi' });
+            });
+        } else {
+            // Eğer belirli bir içecek daha önce eklenmişse, mevcut quantity değerini arttırın
+            const currentQuantity = rows[0].quantity;
+            const newQuantity = currentQuantity + 1;
+            db.query(queryUpdate, [newQuantity, user_id, drink_id], (err, result) => {
+                if (err) {
+                    res.status(500).json({ message: 'Sepet güncellenirken bir hata oluştu' });
+                    throw err;
+                }
+                res.json({ message: 'Ürün başarıyla sepete eklendi' });
+            });
+        }
     });
 });
 
-// Sepeti görüntüleme endpoint'i
+
+// Sepeti g r nt leme endpoint'i
 app.get('/basket/show/:user_id', (req, res) => {
     const user_id = req.params.user_id;
     const query = `
-        SELECT s.name, s.description, s.image_url, b.adet
-        FROM deneme.basket b
-        INNER JOIN deneme.drinks s ON b.drink_id = s.id 
+        SELECT s.name, s.description, s.image_url, b.quantity
+        FROM basket b
+        INNER JOIN drinks s ON b.drink_id = s.id 
         WHERE b.user_id = ?
     `;
     db.query(query, [user_id], (err, results) => {
@@ -178,12 +210,12 @@ app.get('/basket/show/:user_id', (req, res) => {
     });
 });
 
-// Basket güncelleme endpoint'i
+// Basket g ncelleme endpoint'i
 app.post('/basket/update', (req, res) => {
-    const { user_id, drink_id, adet } = req.body;
+    const { user_id, drink_id, quantity } = req.body;
     
-    // Mevcut adeti almak için SELECT sorgusu yapılıyor
-    const selectQuery = 'SELECT adet FROM basket WHERE user_id = ? AND drink_id = ?';
+    // Mevcut quantityi almak i in SELECT sorgusu yap l yor
+    const selectQuery = 'SELECT quantity FROM basket WHERE user_id = ? AND drink_id = ?';
     db.query(selectQuery, [user_id, drink_id], (err, rows) => {
         if (err) {
             res.status(500).json({ message: 'Sepet güncellenirken bir hata oluştu' });
@@ -191,21 +223,21 @@ app.post('/basket/update', (req, res) => {
         }
         
         if (rows.length === 0) {
-            res.status(404).json({ message: 'Ürün sepetinizde bulunamadı' });
+            res.status(404).json({ message: 'ürün sepetinizde bulunamadı' });
             return;
         }
         
-        const currentQuantity = rows[0].adet;
+        const currentQuantity = rows[0].quantity;
         
-        // Yeni adet değerini hesaplıyoruz
-        let updatedQuantity = adet;
+        // Yeni quantity de erini hesapl yoruz
+        let updatedQuantity = quantity;
 
-        // Yeni adet değerine göre is_emty değerini ayarlıyoruz
-        const is_emty = updatedQuantity > 0 ? 1 : 0;
+        // Yeni quantity de erine g re is_empty de erini ayarl yoruz
+        const is_empty = updatedQuantity > 0 ? 1 : 0;
 
-        // Güncelleme sorgusu yapılıyor
-        const updateQuery = 'UPDATE basket SET adet = ?, is_emty = ? WHERE user_id = ? AND drink_id = ?';
-        db.query(updateQuery, [updatedQuantity, is_emty, user_id, drink_id], (err, result) => {
+        // G ncelleme sorgusu yap l yor
+        const updateQuery = 'UPDATE basket SET quantity = ?, is_empty = ? WHERE user_id = ? AND drink_id = ?';
+        db.query(updateQuery, [updatedQuantity, is_empty, user_id, drink_id], (err, result) => {
             if (err) {
                 res.status(500).json({ message: 'Sepet güncellenirken bir hata oluştu' });
                 throw err;
@@ -215,7 +247,7 @@ app.post('/basket/update', (req, res) => {
     });
 });
 
-// API'nin dinlemeye başlaması
+// API'nin dinlemeye ba lamas 
 app.listen(port, () => {
-    console.log(`API çalışıyor: http://localhost:${port}`);
+    console.log(`API çalışyor: http://93.95.26.206:${port}`);
 });
